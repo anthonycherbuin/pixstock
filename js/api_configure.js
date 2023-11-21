@@ -4,8 +4,9 @@
  * Import
  */
 import { urlEncode } from "./utils/urlEncode.js";
+import { config } from "./config.js";
 
-const /** {String} */ API_KEY = process.env.PEXELS_API_KEY;
+const /** {String} */ API_KEY = config.PEXELS_API_KEY;
 
 const /** {Object} */ headers = new Headers();
 headers.append("Authorization", API_KEY);
