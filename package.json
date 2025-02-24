@@ -1,0 +1,24 @@
+{
+  "name": "pixstock",
+  "version": "1.0.0",
+  "description": "Waterpng.com is a media platform which offers a vast array of pictures, videos, and collections sourced through the Pexels API. With Waterpng.com, users can not only explore a wide range of media content but also download pictures and videos in various sizes and formats. Additionally, the platform enables favoriting preferred media items, searching for specific content, and filtering search results",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthonycherbuin/pixstock.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anthonycherbuin/pixstock/issues"
+  },
+  "homepage": "https://github.com/anthonycherbuin/pixstock#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

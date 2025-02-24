@@ -1,8 +1,8 @@
-# Pixstock
+# Waterpng.com
 
-Pixstock is a media platform which offers a vast array of pictures, videos, and collections sourced through the Pexels API. With Pixstock, users can not only explore a wide range of media content but also download pictures and videos in various sizes and formats. Additionally, the platform enables favoriting preferred media items, searching for specific content, and filtering search results
+Waterpng.com is a media platform which offers a vast array of pictures, videos, and collections sourced through the Pexels API. With Waterpng.com, users can not only explore a wide range of media content but also download pictures and videos in various sizes and formats. Additionally, the platform enables favoriting preferred media items, searching for specific content, and filtering search results
 
-![Page screenshot](https://pixstock-wale.netlify.app/assets/images/page-screenshot.png)
+![Page screenshot](https://Waterpng.com-wale.netlify.app/assets/images/page-screenshot.png)
 
 ## Table of contents
 
@@ -28,12 +28,12 @@ Pixstock is a media platform which offers a vast array of pictures, videos, and 
 
 ## Installation
 
-To run Pixstock locally, follow these steps:
+To run Waterpng.com locally, follow these steps:
 
 ### Clone the repository:
 
 ```bash
-git clone https://github.com/taiwo-adewale/pixstock.git
+git clone https://github.com/taiwo-adewale/Waterpng.com.git
 ```
 
 - Open the HTML file in a server, for instance, you can use Live Server in VSCode or any other server of your choice.
