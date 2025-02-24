@@ -1,145 +1,127 @@
 "use strict";
 
 /**
- * Import
+ * Import helper for URL encoding parameters
  */
 import { urlEncode } from "./utils/urlEncode.js";
 
-
-// Create a function to fetch the API key from the server endpoint
-async function fetchApiKey() {
-  try {
-    const response = await fetch('/api/key');
-    if (!response.ok) {
-      throw new Error('Failed to fetch API key');
-    }
-    const data = await response.json();
-    return data.key;  // Assuming your server endpoint sends { key: 'your-key' }
-  } catch (error) {
-    console.error('Error fetching API key:', error);
-  }
-}
-
-
-const /** {Object} */ headers = new Headers();
-
-// Use the fetched API key where needed
-fetchApiKey().then(API_KEY => {
-headers.append("Authorization", API_KEY);
-});
-const /** {Object} */ requestOptions = { headers };
+// We no longer need to fetch the API key on the client side,
+// as our server will securely inject the key when proxying requests.
+// All requests will be made to our local proxy endpoints.
+const requestOptions = {
+  // No need for client-side Authorization header
+};
 
 /**
- * Fetch data from Pexels
- * @param {string} url Fetch Url
- * @param {Function} successCallback Success callback function
+ * Generic function to fetch data from our proxy endpoints.
+ * @param {string} url - The local API endpoint URL
+ * @param {Function} successCallback - Callback to handle the response data
  */
-
 const fetchData = async function (url, successCallback) {
-  const /** {Object} */ response = await fetch(url, requestOptions);
+  const response = await fetch(url, requestOptions);
 
   if (response.ok) {
-    const /** {Object} */ data = await response.json();
+    const data = await response.json();
     successCallback(data);
+  } else {
+    console.error("Request failed with status:", response.status);
   }
 };
 
-let /** {String} */ requestUrl = "";
+let requestUrl = "";
 
-const /** {Object} */ root = {
-    default: "https://api.pexels.com/v1/",
-    videos: "https://api.pexels.com/videos/",
-  };
+// Update the root endpoints to point to our Express server proxy endpoints.
+const root = {
+  photos: "/api/photos/",
+  videos: "/api/videos/",
+  collections: "/api/collections/",
+};
 
-export const /** {Object} */ client = {
-    photos: {
-      /**
-       * Search photos
-       * @param {Object} parameters Url Object
-       * @param {Function} callback Callback function
-       */
-      search(parameters, callback) {
-        requestUrl = `${root.default}search?${urlEncode(parameters)}`;
-        fetchData(requestUrl, callback);
-      },
-
-      /**
-       * Curated photos
-       * @param {Object} parameters Url Object
-       * @param {Function} callback Callback function
-       */
-      curated(parameters, callback) {
-        requestUrl = `${root.default}curated?${urlEncode(parameters)}`;
-        fetchData(requestUrl, callback);
-      },
-
-      /**
-       * Get single photo detail
-       * @param {String} id Photo ID
-       * @param {Function} callback Callback function
-       */
-      detail(id, callback) {
-        requestUrl = `${root.default}photos/${id}`;
-        fetchData(requestUrl, callback);
-      },
+export const client = {
+  photos: {
+    /**
+     * Search photos via the server proxy.
+     * @param {Object} parameters - URL parameters as an object.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    search(parameters, callback) {
+      requestUrl = `${root.photos}search?${urlEncode(parameters)}`;
+      fetchData(requestUrl, callback);
     },
 
-    videos: {
-      /**
-       * Search videos
-       * @param {Object} parameters Url Object
-       * @param {Function} callback Callback function
-       */
-      search(parameters, callback) {
-        requestUrl = `${root.videos}search?${urlEncode(parameters)}`;
-        fetchData(requestUrl, callback);
-      },
-
-      /**
-       * Get Popular videos
-       * @param {Object} parameters Url Object
-       * @param {Function} callback Callback function
-       */
-      popular(parameters, callback) {
-        requestUrl = `${root.videos}popular?${urlEncode(parameters)}`;
-        fetchData(requestUrl, callback);
-      },
-
-      /**
-       * Get single video detail
-       * @param {String} id Video ID
-       * @param {Function} callback Callback function
-       */
-      detail(id, callback) {
-        requestUrl = `${root.videos}videos/${id}`;
-        fetchData(requestUrl, callback);
-      },
+    /**
+     * Retrieve curated photos via the server proxy.
+     * @param {Object} parameters - URL parameters as an object.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    curated(parameters, callback) {
+      requestUrl = `${root.photos}curated?${urlEncode(parameters)}`;
+      fetchData(requestUrl, callback);
     },
 
-    collections: {
-      /**
-       * Get featured collections
-       * @param {Object} parameters Url Object
-       * @param {Function} callback Callback function
-       */
-      featured(parameters, callback) {
-        requestUrl = `${root.default}collections/featured?${urlEncode(
-          parameters
-        )}`;
-        fetchData(requestUrl, callback);
-      },
-
-      /**
-       * Get a collection medias
-       * @param {String} id Collection ID
-       * @param {Object} parameters Url object
-       * @param {Function} callback Callback function
-       */
-      detail(id, parameters, callback) {
-        requestUrl = `${root.default}collections/${id}?${urlEncode(
-          parameters
-        )}`;
-        fetchData(requestUrl, callback);
-      },
+    /**
+     * Get details for a single photo via the server proxy.
+     * @param {String} id - Photo ID.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    detail(id, callback) {
+      requestUrl = `${root.photos}${id}`;
+      fetchData(requestUrl, callback);
     },
-  };
+  },
+
+  videos: {
+    /**
+     * Search videos via the server proxy.
+     * @param {Object} parameters - URL parameters as an object.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    search(parameters, callback) {
+      requestUrl = `${root.videos}search?${urlEncode(parameters)}`;
+      fetchData(requestUrl, callback);
+    },
+
+    /**
+     * Retrieve popular videos via the server proxy.
+     * @param {Object} parameters - URL parameters as an object.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    popular(parameters, callback) {
+      requestUrl = `${root.videos}popular?${urlEncode(parameters)}`;
+      fetchData(requestUrl, callback);
+    },
+
+    /**
+     * Get details for a single video via the server proxy.
+     * @param {String} id - Video ID.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    detail(id, callback) {
+      requestUrl = `${root.videos}videos/${id}`;
+      fetchData(requestUrl, callback);
+    },
+  },
+
+  collections: {
+    /**
+     * Retrieve featured collections via the server proxy.
+     * @param {Object} parameters - URL parameters as an object.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    featured(parameters, callback) {
+      requestUrl = `${root.collections}featured?${urlEncode(parameters)}`;
+      fetchData(requestUrl, callback);
+    },
+
+    /**
+     * Get details of a specific collection via the server proxy.
+     * @param {String} id - Collection ID.
+     * @param {Object} parameters - Additional URL parameters.
+     * @param {Function} callback - Callback function to handle the data.
+     */
+    detail(id, parameters, callback) {
+      requestUrl = `${root.collections}${id}?${urlEncode(parameters)}`;
+      fetchData(requestUrl, callback);
+    },
+  },
+};

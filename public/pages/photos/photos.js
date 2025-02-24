@@ -18,7 +18,7 @@ import { filter } from "../../js/filter.js";
 const /** {NodeElement} */ $filterBar =
     document.querySelector("[data-filter-bar]");
 
-$filterBar.style.display = window.location.search ? "flex" : "none";
+// $filterBar.style.display = window.location.search ? "flex" : "none";
 
 /**
  * Init filter

@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/anthonycherbuin/pixstock#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
   }
 }
