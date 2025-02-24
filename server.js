@@ -42,22 +42,66 @@ async function listObjects(prefix) {
 // Return water-related photos stored under "photos/water/"
 // The URL is built as "https://waterpng.com/" + key.
 app.get('/api/photos/search', async (req, res) => {
-  try {
-    const prefix = 'photos/water/';
-    const objects = await listObjects(prefix);
-    const photos = objects.map(item => ({
-      key: item.Key,
-      url: `https://waterpng.com/${item.Key}`,
-      lastModified: item.LastModified,
-      size: item.Size,
-    }));
-    // Wrap the photos array with total_results (using photos.length)
-    res.json({ total_results: photos.length, photos });
-  } catch (error) {
-    console.error("Error fetching photos from R2:", error);
-    res.status(500).json({ error: 'Error fetching photos' });
-  }
-});
+    try {
+      // Get pagination parameters
+      const page = parseInt(req.query.page) || 1;
+      const perPage = parseInt(req.query.per_page) || 20;
+      // Get any additional query parameter from the client
+      const userQuery = req.query.query ? req.query.query.trim() : "";
+      
+      // Use a fixed bucket prefix for water-related images
+      const bucketPrefix = 'photos/water/';
+      const bucketImages = await listObjects(bucketPrefix);
+      
+      // Paginate the bucket results
+      const startIndex = (page - 1) * perPage;
+      const endIndex = startIndex + perPage;
+      const bucketSlice = bucketImages.slice(startIndex, endIndex);
+      
+      // Map bucket results to expected structure
+      const bucketPhotos = bucketSlice.map(item => ({
+        key: item.Key,
+        url: `https://waterpng.com/${item.Key}`,
+        lastModified: item.LastModified,
+        size: item.Size,
+      }));
+      
+      // If the bucket doesn't have enough photos to fill the page,
+      // fetch additional photos from Pexels as fallback.
+      let combinedPhotos = bucketPhotos;
+      if (bucketPhotos.length < perPage) {
+        const missingCount = perPage - bucketPhotos.length;
+        // Build fallback query: always starts with "water" then append the user's query if provided
+        const fallbackQuery = `water${userQuery ? " " + userQuery : ""}`;
+        const pexelsUrl = `https://api.pexels.com/v1/search?query=${encodeURIComponent(fallbackQuery)}&per_page=${missingCount}&page=1`;
+        const pexelsResponse = await fetch(pexelsUrl, {
+          headers: { Authorization: process.env.PEXELS_API_KEY },
+        });
+        if (!pexelsResponse.ok) {
+          throw new Error("Pexels fallback API call failed");
+        }
+        const pexelsData = await pexelsResponse.json();
+        // Map Pexels photos to our structure.
+        const fallbackPhotos = (pexelsData.photos || []).map(item => ({
+          key: item.id,
+          url: item.src.original,
+          // Since Pexels doesn't provide lastModified in the same way, we use a default value.
+          lastModified: new Date().toISOString(),
+          size: 0, // Size isn't provided by Pexels, so we use 0.
+        }));
+        combinedPhotos = bucketPhotos.concat(fallbackPhotos);
+      }
+      
+      // You can decide how to compute total_results. Here, we sum only the bucket results.
+      // (Fallback results aren't stored in your bucket.)
+      const total_results = bucketImages.length;
+      res.json({ total_results, photos: combinedPhotos });
+    } catch (error) {
+      console.error("Error in /api/photos/search fallback:", error);
+      res.status(500).json({ error: "Error fetching photos" });
+    }
+  });
+  
 
 // Curated photos (for example, images under "photos/water/")
 app.get('/api/photos/curated', async (req, res) => {
@@ -160,21 +204,22 @@ app.get('/api/videos/videos/:id', (req, res) => {
 // ----- Endpoints for Collections -----
 // Featured collections (for example, collections stored under "photos/water/")
 app.get('/api/collections/featured', async (req, res) => {
-  try {
-    const prefix = 'photos/water/';
-    const objects = await listObjects(prefix);
-    const collections = objects.map(item => ({
-      key: item.Key,
-      url: `https://waterpng.com/${item.Key}`,
-      lastModified: item.LastModified,
-      size: item.Size,
-    }));
-    res.json(collections);
-  } catch (error) {
-    console.error("Error fetching featured collections from R2:", error);
-    res.status(500).json({ error: 'Error fetching featured collections' });
-  }
-});
+    try {
+      const prefix = 'photos/water/';
+      const objects = await listObjects(prefix);
+      const collections = objects.map(item => ({
+        key: item.Key,
+        url: `https://waterpng.com/${item.Key}`,
+        lastModified: item.LastModified,
+        size: item.Size,
+      }));
+      // Wrap the collections array so that client code can read data.collections
+      res.json({ total_results: collections.length, collections });
+    } catch (error) {
+      console.error("Error fetching featured collections from R2:", error);
+      res.status(500).json({ error: 'Error fetching featured collections' });
+    }
+  });
 
 // Collection detail by ID (assumes the id corresponds to a folder under "photos/water/")
 app.get('/api/collections/:id', async (req, res) => {

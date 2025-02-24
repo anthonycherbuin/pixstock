@@ -12,7 +12,7 @@ import { favorite } from "./favorite.js";
  * @returns {Node} Photo card
  */
 export const photoCard = (photo) => {
-  const /** {String} */ root = window.location.origin;
+  const root = window.location.origin;
 
   // Destructure properties with fallbacks:
   // - Use photo.key as id if id isn't provided.
@@ -29,14 +29,15 @@ export const photoCard = (photo) => {
   
   // Use the new API's url property if src or src.large is missing.
   const large = src && src.large ? src.large : photo.url;
+  
+  // Create a slug from id only if id is a string containing a slash.
+  const slug = (typeof id === 'string' && id.includes('/')) ? id.split('/').pop() : id;
 
-  const /** {NodeElement} */ $card = document.createElement("div");
+  const $card = document.createElement("div");
   $card.classList.add("card", "grid-item");
   $card.style.backgroundColor = backdropColor;
 
-  const /** {Object} */ favoriteObj = JSON.parse(
-      window.localStorage.getItem("favorite") || "{}"
-    );
+  const favoriteObj = JSON.parse(window.localStorage.getItem("favorite") || "{}");
 
   $card.innerHTML = `
     <figure
@@ -65,28 +66,26 @@ export const photoCard = (photo) => {
       </button>
     </div>
 
-    <a href="${root}/pages/photos/photo_detail.html?id=${id.split('/').pop()}" class="state-layer"></a>
+    <a href="${root}/pages/photos/photo_detail.html?id=${slug}" class="state-layer"></a>
   `;
 
-  const /** {NodeElement} */ $cardBanner = $card.querySelector("img");
+  const $cardBanner = $card.querySelector("img");
   $cardBanner.style.opacity = 0;
 
   $cardBanner.addEventListener("load", function () {
     this.animate(
-      {
-        opacity: 1,
-      },
+      { opacity: 1 },
       { duration: 400, fill: "forwards" }
     );
   });
 
-  const /** {NodeList} */ $rippleElems = [
-      $card,
-      $card.querySelector("[data-ripple]"),
-    ];
+  const $rippleElems = [
+    $card,
+    $card.querySelector("[data-ripple]"),
+  ];
   $rippleElems.forEach(($rippleElem) => ripple($rippleElem));
 
-  const /** {NodeElement} */ $favoriteBtn = $card.querySelector("[data-favorite-btn]");
+  const $favoriteBtn = $card.querySelector("[data-favorite-btn]");
   favorite($favoriteBtn, "photos", id);
 
   return $card;
