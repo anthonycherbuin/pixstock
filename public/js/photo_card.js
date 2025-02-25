@@ -20,7 +20,7 @@ export const photoCard = (photo) => {
   // - Provide defaults for alt, avg_color, width, height if they don't exist.
   const {
     alt = 'Water Image',
-    avg_color: backdropColor = '#ccc',
+    avg_color: backdropColor = 'rgba(255,255,255,0.1)',
     width = 800,
     height = 600,
     id = photo.key,
