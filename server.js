@@ -74,7 +74,7 @@ app.get('/api/photos/search', async (req, res) => {
     // Map bucket results to the expected structure
     const bucketPhotos = bucketSlice.map(item => ({
       key: item.Key,
-      url: `https://waterpng.com/${item.Key}`,
+      url: `https://storage.waterpng.com/${item.Key}`,
       lastModified: item.LastModified,
       size: item.Size,
     }));
@@ -121,7 +121,7 @@ app.get('/api/photos/curated', async (req, res) => {
     const objects = await listObjects(prefix);
     const photos = objects.map(item => ({
       key: item.Key,
-      url: `https://waterpng.com/${item.Key}`,
+      url: `https://storage.waterpng.com/${item.Key}`,
       lastModified: item.LastModified,
       size: item.Size,
     }));
@@ -139,7 +139,7 @@ app.get('/api/photos/:id', async (req, res) => {
     // Construct the key (assuming the file is stored in photos/water/)
     const key = `photos/water/${id}`;
     // Build the URL using your domain (waterpng.com)
-    const imageUrl = `https://waterpng.com/${key}`;
+    const imageUrl = `https://storage.waterpng.com/${key}`;
 
     // Return a photo object with the structure expected by the client.
     res.json({
@@ -220,7 +220,7 @@ app.get('/api/collections/featured', async (req, res) => {
       const objects = await listObjects(prefix);
       const collections = objects.map(item => ({
         key: item.Key,
-        url: `https://waterpng.com/${item.Key}`,
+        url: `https://storage.waterpng.com/${item.Key}`,
         lastModified: item.LastModified,
         size: item.Size,
       }));
@@ -240,7 +240,7 @@ app.get('/api/collections/:id', async (req, res) => {
     const objects = await listObjects(prefix);
     const items = objects.map(item => ({
       key: item.Key,
-      url: `https://waterpng.com/${item.Key}`,
+      url: `https://storage.waterpng.com/${item.Key}`,
       lastModified: item.LastModified,
       size: item.Size,
     }));
