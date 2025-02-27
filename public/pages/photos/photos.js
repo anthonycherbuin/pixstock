@@ -51,7 +51,7 @@ const /** {String} */ searchUrl = window.location.search.slice(1);
 let /** {String} */ searchObj = searchUrl && urlDecode(searchUrl);
 const /** {String} */ title = searchObj
     ? `${searchObj.query} photos`
-    : "Curated photos";
+    : "Our top free water png photos";
 
 $title.textContent = title;
 document.title = title;
